@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import { Routes, Route } from "react-router-dom";
 import CivilianDashboard from "./pages/Civilian";
 import CivilianAuthProvider from "./components/CivilianAuthProvider";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
   return (
@@ -19,6 +20,12 @@ export default function App() {
             <CivilianAuthProvider>
               <CivilianDashboard />
             </CivilianAuthProvider>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminDashboard/>
           }
         />
       </Routes>
