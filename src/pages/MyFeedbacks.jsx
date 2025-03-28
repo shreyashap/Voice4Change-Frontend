@@ -81,7 +81,7 @@ const MyFeedbacks = () => {
           Submit New Feedback
         </motion.button>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 

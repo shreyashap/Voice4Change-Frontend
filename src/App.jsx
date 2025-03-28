@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import CivilianDashboard from "./pages/Civilian";
 import CivilianAuthProvider from "./components/CivilianAuthProvider";
 import FeedbackModal from "./components/FeedbackModel";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
   return (
@@ -28,6 +29,12 @@ export default function App() {
             <CivilianAuthProvider>
               <FeedbackModal />
             </CivilianAuthProvider>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminDashboard/>
           }
         />
       </Routes>
