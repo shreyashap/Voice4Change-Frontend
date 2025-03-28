@@ -66,16 +66,18 @@ transition-transform duration-300 hover:shadow-blue-500/30"
         <h3 className="text-xl font-semibold text-blue-400">
           {feedback.title}
         </h3>
-        <div>
-          <MdEdit
-            className="cursor-pointer text-lg text-green-400 hover:text-green-500 inline mx-2"
-            onClick={handleEdit}
-          />{" "}
-          <MdDelete
-            className="cursor-pointer text-lg text-red-400 hover:text-red-500 inline mx-2"
-            onClick={handleDelete}
-          />
-        </div>
+        {section !== "home" && (
+          <div>
+            <MdEdit
+              className="cursor-pointer text-lg text-green-400 hover:text-green-500 inline mx-2"
+              onClick={handleEdit}
+            />{" "}
+            <MdDelete
+              className="cursor-pointer text-lg text-red-400 hover:text-red-500 inline mx-2"
+              onClick={handleDelete}
+            />
+          </div>
+        )}
       </div>
 
       <p className="text-gray-300 mt-2">{feedback.description}</p>
@@ -123,41 +125,12 @@ transition-transform duration-300 hover:shadow-blue-500/30"
         )}
       </div>
 
-      {/* Comment Input */}
-      {section === "home" && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Write a comment..."
-            className="w-full p-2 bg-gray-800 border border-gray-700 rounded-md text-white"
-          />
-          <button
-            onClick={handleComment}
-            className="mt-2 w-full bg-blue-600 py-2 rounded-md text-white hover:bg-blue-700 transition"
-          >
-            Add Comment
-          </button>
-        </div>
-      )}
-
-      {/* Display Comments */}
-      {comments.length > 0 && (
-        <div className="mt-4 border-t border-gray-700 pt-4">
-          <h4 className="text-sm font-semibold text-gray-400">Comments</h4>
-          <ul className="mt-2 space-y-2">
-            {comments.map((cmt, index) => (
-              <li
-                key={index}
-                className="text-gray-300 text-sm bg-gray-800 p-2 rounded-md"
-              >
-                {cmt}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <button
+        onClick={handleComment}
+        className="mt-2 w-full bg-blue-600 py-2 rounded-md text-white hover:bg-blue-700 transition"
+      >
+        View More
+      </button>
     </div>
   );
 };

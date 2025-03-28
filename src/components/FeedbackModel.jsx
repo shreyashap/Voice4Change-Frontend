@@ -51,11 +51,17 @@ const FeedbackDetails = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch(`https://your-api.com/feedbacks/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/api/feedback/update/${id}`,
+        {
+          formData,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.access_token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const updatedFeedback = await response.json();

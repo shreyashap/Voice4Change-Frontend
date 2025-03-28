@@ -1,43 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FeedbackCard from "../components/FeedbackCard";
-import { FiAlertCircle, FiCheckCircle, FiClock, FiMapPin, FiPlus, FiSearch } from "react-icons/fi";
+import {
+  FiAlertCircle,
+  FiCheckCircle,
+  FiClock,
+  FiMapPin,
+  FiPlus,
+  FiSearch,
+} from "react-icons/fi";
 import { motion } from "framer-motion";
-
-const feedbacks = [
-  {
-    id: 1,
-    title: "Road Repair Needed",
-    description: "Multiple large potholes on Main Street between 5th and 7th avenues causing vehicle damage and safety hazards",
-    location: "Downtown District",
-    createdAt: "2 days ago",
-    status: "Pending",
-    category: "Infrastructure",
-    upvotes: 24,
-    comments: 8,
-  },
-  {
-    id: 2,
-    title: "Streetlights Not Working",
-    description: "Entire block of Maple Street has been dark for 5 nights straight, creating safety concerns for pedestrians",
-    location: "City Center",
-    createdAt: "1 week ago",
-    status: "Resolved",
-    category: "Public Safety",
-    upvotes: 42,
-    comments: 15,
-  },
-  {
-    id: 3,
-    title: "Park Maintenance Required",
-    description: "Playground equipment at Riverside Park is broken and grass needs cutting in the picnic areas",
-    location: "Riverside Neighborhood",
-    createdAt: "3 days ago",
-    status: "In Progress",
-    category: "Parks & Recreation",
-    upvotes: 18,
-    comments: 5,
-  },
-];
+import axios from "axios";
 
 const statusIcons = {
   Pending: <FiClock className="text-yellow-400" />,
@@ -48,15 +20,42 @@ const statusIcons = {
 const CivilianHome = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Issues");
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState();
 
-  const filteredFeedbacks = feedbacks.filter(feedback => 
-    feedback.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    feedback.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    feedback.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    feedback.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (user) setUser(user);
 
-  const filters = ["All Issues", "Your Area", "Infrastructure", "Public Safety", "Parks & Recreation"];
+    const fetchFeedbacks = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/feedback/list/",
+          {
+            headers: {
+              Authorization: `Bearer ${user?.access_token}`,
+            },
+          }
+        );
+        setFeedbacks(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeedbacks();
+  }, []);
+
+  const filters = [
+    "All Issues",
+    "Your Area",
+    "Infrastructure",
+    "Public Safety",
+    "Parks & Recreation",
+  ];
 
   return (
     <div className="p-6 md:p-8 bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 shadow-2xl">
@@ -133,8 +132,8 @@ const CivilianHome = () => {
 
       {/* Feedback Cards */}
       <div className="space-y-4">
-        {filteredFeedbacks.length > 0 ? (
-          filteredFeedbacks.map((feedback) => (
+        {feedbacks.length > 0 ? (
+          feedbacks.map((feedback) => (
             <motion.div
               key={feedback.id}
               initial={{ opacity: 0, y: 10 }}
@@ -154,14 +153,10 @@ const CivilianHome = () => {
             animate={{ opacity: 1 }}
             className="text-center py-12 text-gray-400"
           >
-            <FiSearch className="mx-auto text-4xl mb-4" />
-            <p>No issues found matching your search</p>
-            <button
-              className="mt-4 text-blue-400 hover:text-blue-300 text-sm"
-              onClick={() => setSearchQuery("")}
-            >
-              Clear search
-            </button>
+            {feedbacks.length && !loading < 1 && (
+              <p>No issues found matching</p>
+            )}
+            {loading && <p>Loading...</p>}
           </motion.div>
         )}
       </div>
