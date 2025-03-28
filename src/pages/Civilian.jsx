@@ -5,11 +5,8 @@ import CreateFeedback from "../pages/NewFeedback";
 import MyFeedbacks from "../pages/MyFeedbacks";
 
 const CivilianDashboard = () => {
-  const [activeTab, setActiveTab] = useState("myfeedbacks");
+  const [activeTab, setActiveTab] = useState("home");
 
-  if (activeTab === "logout") {
-    localStorage.removeItem("userData");
-  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-r from-blue-900 via-purple-800 to-indigo-900 text-white ">

@@ -286,6 +286,7 @@ const Registration = () => {
           </Link>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 };
