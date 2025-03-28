@@ -5,7 +5,7 @@ import Login from "./components/Login";
 import { Routes, Route } from "react-router-dom";
 import CivilianDashboard from "./pages/Civilian";
 import CivilianAuthProvider from "./components/CivilianAuthProvider";
-import AdminDashboard from "./pages/AdminDashboard";
+import FeedbackModal from "./components/FeedbackModel";
 
 export default function App() {
   return (
@@ -23,9 +23,11 @@ export default function App() {
           }
         />
         <Route
-          path="/admin"
+          path="/civilian-update/:id"
           element={
-            <AdminDashboard/>
+            <CivilianAuthProvider>
+              <FeedbackModal />
+            </CivilianAuthProvider>
           }
         />
       </Routes>

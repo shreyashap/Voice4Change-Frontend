@@ -74,7 +74,7 @@ const CivilianHome = () => {
             Track and engage with local issues that matter to you
           </p>
         </motion.div>
-        
+
         {/* Search Box */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -97,14 +97,14 @@ const CivilianHome = () => {
 
       {/* Filter Chips */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {filters.map(filter => (
+        {filters.map((filter) => (
           <motion.button
             key={filter}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`px-3 py-1 rounded-full text-xs transition-colors ${
-              activeFilter === filter 
-                ? "bg-blue-600 text-white" 
+              activeFilter === filter
+                ? "bg-blue-600 text-white"
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
             }`}
             onClick={() => setActiveFilter(filter)}
@@ -117,7 +117,7 @@ const CivilianHome = () => {
       {/* Feedback List Header */}
       <div className="flex items-center justify-between mb-4 px-2">
         <h3 className="text-lg font-semibold text-white">
-          {searchQuery ? "Search Results" : "Recent Community Issues"} 
+          {searchQuery ? "Search Results" : "Recent Community Issues"}
           {searchQuery && (
             <span className="text-gray-400 text-sm ml-2">
               ({filteredFeedbacks.length} results)
@@ -141,9 +141,10 @@ const CivilianHome = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <FeedbackCard 
+              <FeedbackCard
                 feedback={feedback}
                 statusIcon={statusIcons[feedback.status]}
+                section="home"
               />
             </motion.div>
           ))
@@ -155,7 +156,7 @@ const CivilianHome = () => {
           >
             <FiSearch className="mx-auto text-4xl mb-4" />
             <p>No issues found matching your search</p>
-            <button 
+            <button
               className="mt-4 text-blue-400 hover:text-blue-300 text-sm"
               onClick={() => setSearchQuery("")}
             >
