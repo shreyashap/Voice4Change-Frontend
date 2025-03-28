@@ -23,7 +23,7 @@ const Sidebar = ({ activeTab, setActivePage }) => {
           Dashboard
         </h2>
         <nav className="space-y-4">
-          {["home", "create", "myfeedbacks"].map((tab) => (
+          {["home", "create", "myfeedbacks", "profile", "logout"].map((tab) => (
             <button
               key={tab}
               onClick={() => {
@@ -39,6 +39,8 @@ const Sidebar = ({ activeTab, setActivePage }) => {
               {tab === "home" && "🏠 Home"}
               {tab === "create" && "➕ Create Feedback"}
               {tab === "myfeedbacks" && "📂 My Feedbacks"}
+              {tab === "profile" && "👤 Profile"}
+              {tab === "logout" && "➡️ Logout"}
             </button>
           ))}
         </nav>

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const loginSchema = z.object({
@@ -14,6 +15,8 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -37,8 +40,9 @@ const Login = () => {
         }
       );
       console.log("Login successful:", response.data);
-      localStorage.setItem("token", response?.data.access_token);
+      localStorage.setItem("userData", JSON.stringify(response?.data));
       reset();
+      navigate("/civilian");
     } catch (err) {
       setError(
         err.response?.data?.message ||
