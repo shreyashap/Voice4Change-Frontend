@@ -8,6 +8,7 @@ import { FaUserCircle } from "react-icons/fa";
 import logo from "../assets/logo.png";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CivilianDashboard = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -15,15 +16,27 @@ const CivilianDashboard = () => {
   const navigate = useNavigate();
 
   // Get user data from localStorage (replace with your actual user data structure)
-  const userData = JSON.parse(localStorage.getItem("userData")) || {
-    name: "John Doe",
-    email: "john@example.com",
-    profilePic: null,
-  };
+  const userData = JSON.parse(localStorage.getItem("userData"));
 
-  const handleLogout = () => {
-    localStorage.removeItem("userData");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/auth/logout/",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userData?.access_token}`,
+          },
+        }
+      );
+
+      if (res.data) {
+        localStorage.removeItem("userData");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -53,9 +66,9 @@ const CivilianDashboard = () => {
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <div className="flex items-center space-x-3">
-              {userData.profilePic ? (
+              {userData?.user.profilePic ? (
                 <img
-                  src={userData.profilePic}
+                  src={userData?.user.profilePic}
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover border-2 border-blue-400"
                 />
@@ -63,8 +76,10 @@ const CivilianDashboard = () => {
                 <FaUserCircle className="text-blue-400 text-3xl" />
               )}
               <div className="text-right">
-                <p className="font-medium text-sm">{userData.name}</p>
-                <p className="text-gray-300 text-xs">{userData.email}</p>
+                <p className="font-medium text-sm">
+                  {userData?.user.first_name} {userData?.user.last_name}
+                </p>
+                <p className="text-gray-300 text-xs">{userData?.user.email}</p>
               </div>
               <FiChevronDown
                 className={`transition-transform ${

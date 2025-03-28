@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 
@@ -42,14 +42,23 @@ const feedbackSchema = z.object({
 export default function CreateFeedback() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [user, setUser] = useState();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(feedbackSchema),
   });
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (user) {
+      setUser(user);
+    }
+  }, []);
 
   const onSubmit = async (d) => {
     console.log("Submitted Feedback:", d);
@@ -62,7 +71,9 @@ export default function CreateFeedback() {
         "http://127.0.0.1:8000/api/feedback/create/",
         d,
         {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${user?.access_token}`,
+          },
         }
       );
       console.log("New feedback created successful:", response.data);

@@ -1,20 +1,23 @@
-import React, { use, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Login from "./Login";
 
 function CivilianAuthProvider({ children }) {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("userData"));
-    console.log(user);
-    if (user && user?.user.user_type !== "CIVILIAN") {
-      navigate("/login");
+    const storedUser = JSON.parse(localStorage.getItem("userData"));
+    if (storedUser) {
+      setUser(storedUser);
     }
   }, []);
-  return (
-    <>
-      <div>{children}</div>
-    </>
-  );
+
+  if (!user || user?.user.user_type !== "CIVILIAN") {
+    return <Login />;
+  }
+
+  return <>{children}</>;
 }
 
 export default CivilianAuthProvider;
