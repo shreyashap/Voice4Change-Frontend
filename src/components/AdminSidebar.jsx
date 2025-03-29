@@ -5,11 +5,12 @@ import {
   FiUsers,
   FiSettings,
   FiBarChart2,
-  FiMapPin,
   FiMenu,
   FiX,
   FiChevronDown,
-  FiChevronRight
+  FiChevronRight,
+  FiClock,
+  FiCheck 
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
@@ -19,24 +20,11 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
   const [expandedSection, setExpandedSection] = useState(null);
   const location = useLocation();
 
-  // Auto-close mobile sidebar when resizing to desktop
+  // Auto-expand feedback section when on feedback pages
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Auto-expand sections when navigating to sub-items
-  useEffect(() => {
-    adminMenuItems.forEach(item => {
-      if (item.subItems && item.subItems.some(sub => location.pathname === sub.path)) {
-        setExpandedSection(item.title);
-      }
-    });
+    if (location.pathname.startsWith('/admin/feedback')) {
+      setExpandedSection('Feedback Management');
+    }
   }, [location]);
 
   const adminMenuItems = [
@@ -47,14 +35,35 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
       tab: "dashboard"
     },
     {
-      title: "Feedback Management",
+      title: "Export Feedbacks",
       icon: <FiMessageSquare size={20} />,
       tab: "feedback",
       subItems: [
-        { title: "All Feedback", path: "/admin/feedback/all", tab: "all-feedback" },
-        { title: "Pending Review", path: "/admin/feedback/pending", tab: "pending-feedback" },
-        { title: "Resolved Issues", path: "/admin/feedback/resolved", tab: "resolved-feedback" }
+        { 
+          title: "All Feedback", 
+          path: "/admin/feedback/all", 
+          tab: "all-feedback",
+          icon: <FiMessageSquare size={16} />
+        },
+        { 
+          title: "Pending Review", 
+          path: "/admin/feedback/pending", 
+          tab: "pending-feedback",
+          icon: <FiClock size={16} />
+        },
+        { 
+          title: "Resolved Issues", 
+          path: "/admin/feedback/resolved", 
+          tab: "resolved-feedback",
+          icon: <FiCheck size={16} />
+        }
       ]
+    },
+    {
+      title: "Feedback Management",
+      icon: <FiBarChart2 size={20} />,
+      path: "/admin/feedback-management",
+      tab: "feedback-management"
     },
     {
       title: "AI Insights",
@@ -80,15 +89,10 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="md:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
+        className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle menu"
       >
-        {isOpen ? (
-          <FiX size={24} className="transform transition-transform duration-200" />
-        ) : (
-          <FiMenu size={24} className="transform transition-transform duration-200" />
-        )}
+        {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
       </motion.button>
 
       {/* Desktop Sidebar */}
@@ -99,7 +103,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mt-16">
               Admin Panel
             </h2>
-            <p className="text-xs text-gray-400 mt-1">Administration Dashboard</p>
+            <p className="text-xs text-gray-400 mt-1">Feedback Management System</p>
           </div>
 
           {/* Navigation Menu */}
@@ -121,7 +125,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                     >
                       <div className="flex items-center space-x-4">
                         <span className={`transition-colors ${
-                          activeTab === item.tab || item.subItems.some(sub => activeTab === sub.tab) 
+                          activeTab === item.tab || item.subItems.some(sub => activeTab === sub.tab)
                             ? "text-white" 
                             : "text-blue-400"
                         }`}>
@@ -165,20 +169,17 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                               to={subItem.path}
                               onClick={() => setActivePage(subItem.tab)}
                               className={({ isActive }) => 
-                                `block py-2.5 px-4 rounded-lg text-sm transition-all ${
+                                `flex items-center py-2.5 px-4 rounded-lg text-sm transition-all ${
                                   isActive
                                     ? "bg-blue-700/30 text-blue-300 font-medium"
                                     : "text-gray-400 hover:bg-gray-800/30 hover:text-white"
                                 }`
                               }
                             >
-                              <motion.div
-                                whileHover={{ x: 3 }}
-                                className="flex items-center"
-                              >
-                                <span className="w-1 h-1 rounded-full bg-blue-400 mr-3 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                                {subItem.title}
-                              </motion.div>
+                              <span className="mr-3 text-blue-300">
+                                {subItem.icon}
+                              </span>
+                              {subItem.title}
                             </NavLink>
                           ))}
                         </motion.div>
@@ -224,14 +225,9 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
           <>
             <motion.aside
               initial={{ x: -300 }}
-              animate={{ 
-                x: 0,
-                transition: { type: "spring", stiffness: 300, damping: 30 }
-              }}
-              exit={{ 
-                x: -300,
-                transition: { type: "spring", stiffness: 300, damping: 30 }
-              }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="fixed top-0 left-0 w-72 h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-6 backdrop-blur-lg border-r border-gray-700 z-40 md:hidden"
             >
               <div className="flex flex-col h-full">
@@ -240,17 +236,14 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                       Admin Panel
                     </h2>
-                    <p className="text-xs text-gray-400">Administration Dashboard</p>
+                    <p className="text-xs text-gray-400">Feedback Management System</p>
                   </div>
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button 
                     onClick={() => setIsOpen(false)}
-                    className="text-gray-400 hover:text-white p-1"
-                    aria-label="Close menu"
+                    className="text-gray-400 hover:text-white"
                   >
                     <FiX size={24} />
-                  </motion.button>
+                  </button>
                 </div>
 
                 <nav className="space-y-1 flex-1 overflow-y-auto">
@@ -258,8 +251,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                     <div key={item.title}>
                       {item.subItems ? (
                         <>
-                          <motion.button
-                            whileTap={{ scale: 0.98 }}
+                          <button
                             onClick={() => toggleSection(item.title)}
                             className={`w-full flex items-center justify-between py-3 px-4 rounded-xl transition-all ${
                               activeTab === item.tab || 
@@ -284,58 +276,34 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                             >
                               <FiChevronRight className="text-blue-300" />
                             </motion.div>
-                          </motion.button>
+                          </button>
 
-                          <AnimatePresence>
-                            {expandedSection === item.title && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ 
-                                  opacity: 1, 
-                                  height: "auto",
-                                  transition: { 
-                                    opacity: { duration: 0.2 },
-                                    height: { duration: 0.3 }
+                          {expandedSection === item.title && (
+                            <div className="pl-14 space-y-1 mt-1">
+                              {item.subItems.map((subItem) => (
+                                <NavLink
+                                  key={subItem.title}
+                                  to={subItem.path}
+                                  onClick={() => {
+                                    setActivePage(subItem.tab);
+                                    setIsOpen(false);
+                                  }}
+                                  className={({ isActive }) => 
+                                    `flex items-center py-2.5 px-4 rounded-lg text-sm transition-all ${
+                                      isActive
+                                        ? "bg-blue-700/30 text-blue-300 font-medium"
+                                        : "text-gray-400 hover:bg-gray-800/30 hover:text-white"
+                                    }`
                                   }
-                                }}
-                                exit={{ 
-                                  opacity: 0, 
-                                  height: 0,
-                                  transition: { 
-                                    opacity: { duration: 0.1 },
-                                    height: { duration: 0.2 }
-                                  }
-                                }}
-                                className="pl-14 space-y-1 mt-1 overflow-hidden"
-                              >
-                                {item.subItems.map((subItem) => (
-                                  <NavLink
-                                    key={subItem.title}
-                                    to={subItem.path}
-                                    onClick={() => {
-                                      setActivePage(subItem.tab);
-                                      setIsOpen(false);
-                                    }}
-                                    className={({ isActive }) => 
-                                      `block py-2.5 px-4 rounded-lg text-sm transition-all ${
-                                        isActive
-                                          ? "bg-blue-700/30 text-blue-300 font-medium"
-                                          : "text-gray-400 hover:bg-gray-800/30 hover:text-white"
-                                      }`
-                                    }
-                                  >
-                                    <motion.div
-                                      whileHover={{ x: 3 }}
-                                      className="flex items-center"
-                                    >
-                                      <span className="w-1 h-1 rounded-full bg-blue-400 mr-3 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                                      {subItem.title}
-                                    </motion.div>
-                                  </NavLink>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                                >
+                                  <span className="mr-3 text-blue-300">
+                                    {subItem.icon}
+                                  </span>
+                                  {subItem.title}
+                                </NavLink>
+                              ))}
+                            </div>
+                          )}
                         </>
                       ) : (
                         <NavLink
@@ -370,13 +338,6 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                     </div>
                   ))}
                 </nav>
-
-                {/* Sidebar Footer */}
-                <div className="pt-4 mt-auto border-t border-gray-700/50">
-                  <div className="text-xs text-gray-400 text-center">
-                    v1.0.0 • {new Date().getFullYear()}
-                  </div>
-                </div>
               </div>
             </motion.aside>
 
@@ -385,7 +346,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 md:hidden"
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
               onClick={() => setIsOpen(false)}
             />
           </>

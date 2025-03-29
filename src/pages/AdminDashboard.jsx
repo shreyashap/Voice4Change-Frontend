@@ -5,55 +5,10 @@ import {
   FiClock, 
   FiSearch, 
   FiFilter,
-  FiUsers,
-  FiTrendingUp,
-  FiMapPin,
   FiMessageSquare
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import FeedbackCard from "../components/AdminFeedbackCard";
-import AdminSidebar from "../components/AdminSidebar";
-import AdminNavbar from "../components/Navbar";
-
-// Mock data - replace with real API calls
-const mockFeedbacks = [
-  {
-    id: 1,
-    title: "Road Repair Needed",
-    description: "Multiple potholes on Main Street causing safety hazards",
-    location: "Downtown District",
-    createdAt: new Date(Date.now() - 3600000 * 2), // 2 hours ago
-    status: "Pending",
-    category: "Infrastructure",
-    upvotes: 24,
-    comments: 8,
-    user: { name: "John D.", email: "john@example.com" }
-  },
-  {
-    id: 2,
-    title: "Streetlights Out",
-    description: "Entire block of Maple Street has no lighting",
-    location: "Residential Zone",
-    createdAt: new Date(Date.now() - 3600000 * 5), // 5 hours ago
-    status: "In Progress",
-    category: "Public Safety",
-    upvotes: 42,
-    comments: 15,
-    user: { name: "Sarah M.", email: "sarah@example.com" }
-  },
-  {
-    id: 3,
-    title: "Park Maintenance",
-    description: "Broken playground equipment at Riverside Park",
-    location: "Riverside Area",
-    createdAt: new Date(Date.now() - 3600000 * 24), // 1 day ago
-    status: "Resolved",
-    category: "Public Spaces",
-    upvotes: 18,
-    comments: 5,
-    user: { name: "Mike T.", email: "mike@example.com" }
-  },
-];
 
 const statusIcons = {
   "Pending": <FiClock className="text-yellow-400" />,
@@ -68,7 +23,46 @@ const statusColors = {
 };
 
 const AdminDashboard = () => {
-  const [feedbacks, setFeedbacks] = useState(mockFeedbacks);
+  // Sample feedback data
+  const [feedbacks, setFeedbacks] = useState([
+    {
+      id: 1,
+      title: "Road Repair Needed",
+      description: "Multiple potholes on Main Street causing safety hazards",
+      location: "Downtown District",
+      createdAt: new Date(Date.now() - 3600000 * 2), // 2 hours ago
+      status: "Pending",
+      category: "Infrastructure",
+      upvotes: 24,
+      comments: 8,
+      user: { name: "John D.", email: "john@example.com" }
+    },
+    {
+      id: 2,
+      title: "Streetlights Out",
+      description: "Entire block of Maple Street has no lighting",
+      location: "Residential Zone",
+      createdAt: new Date(Date.now() - 3600000 * 5), // 5 hours ago
+      status: "In Progress",
+      category: "Public Safety",
+      upvotes: 42,
+      comments: 15,
+      user: { name: "Sarah M.", email: "sarah@example.com" }
+    },
+    {
+      id: 3,
+      title: "Park Maintenance",
+      description: "Broken playground equipment at Riverside Park",
+      location: "Riverside Area",
+      createdAt: new Date(Date.now() - 3600000 * 24), // 1 day ago
+      status: "Resolved",
+      category: "Public Spaces",
+      upvotes: 18,
+      comments: 5,
+      user: { name: "Mike T.", email: "mike@example.com" }
+    },
+  ]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Newest");
@@ -138,192 +132,187 @@ const AdminDashboard = () => {
     updateStats();
   };
 
-  const [activeTab, setActiveTab] = useState("dashboard");
-
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 text-white">
-      <AdminNavbar isAdmin={true} />
-      
-      <div className="flex flex-1 pt-16"> {/* Changed mt-16 to pt-16 */}
-        <AdminSidebar activeTab={activeTab} setActivePage={setActiveTab} />
-        
-        <main className="flex-1 p-6 md:ml-64 overflow-auto"> {/* Added overflow-auto */}
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <StatCard 
-              icon={<FiMessageSquare className="text-blue-400" />}
-              title="Total Feedback"
-              value={stats.total}
-              color="bg-blue-500/10"
-            />
-            <StatCard 
-              icon={<FiClock className="text-yellow-400" />}
-              title="Pending"
-              value={stats.pending}
-              color="bg-yellow-500/10"
-            />
-            <StatCard 
-              icon={<FiAlertCircle className="text-blue-400" />}
-              title="In Progress"
-              value={stats.inProgress}
-              color="bg-blue-500/10"
-            />
-            <StatCard 
-              icon={<FiCheckCircle className="text-green-400" />}
-              title="Resolved"
-              value={stats.resolved}
-              color="bg-green-500/10"
-            />
-          </div>
-
-          {/* Search and Filter Section */}
-          <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="relative w-full md:w-96"
-            >
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiSearch className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search feedback..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </motion.div>
-
-            <div className="flex gap-4">
-              <div className="flex flex-wrap gap-2">
-                {filters.map(filter => (
-                  <motion.button
-                    key={filter}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-3 py-1 rounded-full text-xs transition-colors ${
-                      activeFilter === filter 
-                        ? "bg-blue-600 text-white" 
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                    }`}
-                    onClick={() => setActiveFilter(filter)}
-                  >
-                    {filter}
-                  </motion.button>
-                ))}
-              </div>
-
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700"
-                  onClick={() => setShowSortOptions(!showSortOptions)}
-                >
-                  <FiFilter />
-                  <span>Sort: {sortBy}</span>
-                </motion.button>
-                <AnimatePresence>
-                  {showSortOptions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-700 overflow-hidden"
-                    >
-                      {sortOptions.map(option => (
-                        <button
-                          key={option}
-                          className={`block w-full text-left px-4 py-2 text-sm ${
-                            sortBy === option 
-                              ? "bg-blue-600 text-white" 
-                              : "text-gray-300 hover:bg-gray-700"
-                          }`}
-                          onClick={() => {
-                            setSortBy(option);
-                            setShowSortOptions(false);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+    <>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="p-4 rounded-xl border border-gray-800 bg-blue-500/10 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300">Total Feedback</p>
+              <p className="text-2xl font-bold text-white">{stats.total}</p>
+            </div>
+            <div className="text-3xl text-blue-400">
+              <FiMessageSquare />
             </div>
           </div>
+        </div>
+        
+        <div className="p-4 rounded-xl border border-gray-800 bg-yellow-500/10 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300">Pending</p>
+              <p className="text-2xl font-bold text-white">{stats.pending}</p>
+            </div>
+            <div className="text-3xl text-yellow-400">
+              <FiClock />
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 rounded-xl border border-gray-800 bg-blue-500/10 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300">In Progress</p>
+              <p className="text-2xl font-bold text-white">{stats.inProgress}</p>
+            </div>
+            <div className="text-3xl text-blue-400">
+              <FiAlertCircle />
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 rounded-xl border border-gray-800 bg-green-500/10 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300">Resolved</p>
+              <p className="text-2xl font-bold text-white">{stats.resolved}</p>
+            </div>
+            <div className="text-3xl text-green-400">
+              <FiCheckCircle />
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {/* Feedback List */}
-          <div className="space-y-4">
+      {/* Search and Filter Section */}
+      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="relative w-full md:w-96"
+        >
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FiSearch className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search feedback..."
+            className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </motion.div>
+
+        <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2">
+            {filters.map(filter => (
+              <motion.button
+                key={filter}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-3 py-1 rounded-full text-xs transition-colors ${
+                  activeFilter === filter 
+                    ? "bg-blue-600 text-white" 
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                }`}
+                onClick={() => setActiveFilter(filter)}
+              >
+                {filter}
+              </motion.button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700"
+              onClick={() => setShowSortOptions(!showSortOptions)}
+            >
+              <FiFilter />
+              <span>Sort: {sortBy}</span>
+            </motion.button>
             <AnimatePresence>
-              {filteredFeedbacks.length > 0 ? (
-                filteredFeedbacks.map((feedback) => (
-                  <motion.div
-                    key={feedback.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FeedbackCard 
-                      feedback={{
-                        ...feedback,
-                        createdAt: formatDate(feedback.createdAt)
-                      }}
-                      statusIcon={statusIcons[feedback.status]}
-                      statusColor={statusColors[feedback.status]}
-                      showActions={true}
-                      adminView={true}
-                      onStatusChange={(newStatus) => updateStatus(feedback.id, newStatus)}
-                    />
-                  </motion.div>
-                ))
-              ) : (
+              {showSortOptions && (
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12 text-gray-400"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-700 overflow-hidden"
                 >
-                  <FiSearch className="mx-auto text-4xl mb-4" />
-                  <p>No feedback found matching your criteria</p>
-                  <button 
-                    className="mt-4 text-blue-400 hover:text-blue-300 text-sm"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setActiveFilter("All");
-                    }}
-                  >
-                    Clear filters
-                  </button>
+                  {sortOptions.map(option => (
+                    <button
+                      key={option}
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortBy === option 
+                          ? "bg-blue-600 text-white" 
+                          : "text-gray-300 hover:bg-gray-700"
+                      }`}
+                      onClick={() => {
+                        setSortBy(option);
+                        setShowSortOptions(false);
+                      }}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-        </main>
+        </div>
       </div>
-    </div>
+
+      {/* Feedback List */}
+      <div className="space-y-4">
+        <AnimatePresence>
+          {filteredFeedbacks.length > 0 ? (
+            filteredFeedbacks.map((feedback) => (
+              <motion.div
+                key={feedback.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <FeedbackCard 
+                  feedback={{
+                    ...feedback,
+                    createdAt: formatDate(feedback.createdAt)
+                  }}
+                  statusIcon={statusIcons[feedback.status]}
+                  statusColor={statusColors[feedback.status]}
+                  showActions={true}
+                  adminView={true}
+                  onStatusChange={(newStatus) => updateStatus(feedback.id, newStatus)}
+                />
+              </motion.div>
+            ))
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12 text-gray-400"
+            >
+              <FiSearch className="mx-auto text-4xl mb-4" />
+              <p>No feedback found matching your criteria</p>
+              <button 
+                className="mt-4 text-blue-400 hover:text-blue-300 text-sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveFilter("All");
+                }}
+              >
+                Clear filters
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 };
-
-// StatCard component
-const StatCard = ({ icon, title, value, color }) => (
-  <motion.div
-    whileHover={{ y: -5 }}
-    className={`p-4 rounded-xl border border-gray-800 ${color} backdrop-blur-sm`}
-  >
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-300">{title}</p> {/* Changed text-gray-400 to text-gray-300 */}
-        <p className="text-2xl font-bold text-white">{value}</p> {/* Added text-white */}
-      </div>
-      <div className="text-3xl">
-        {icon}
-      </div>
-    </div>
-  </motion.div>
-);
 
 export default AdminDashboard;
