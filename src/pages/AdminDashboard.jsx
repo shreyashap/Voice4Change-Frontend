@@ -14,61 +14,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import FeedbackCard from "../components/AdminFeedbackCard";
 import AdminSidebar from "../components/AdminSidebar";
 import AdminNavbar from "../components/Navbar";
-
-// Mock data - replace with real API calls
-const mockFeedbacks = [
-  {
-    id: 1,
-    title: "Road Repair Needed",
-    description: "Multiple potholes on Main Street causing safety hazards",
-    location: "Downtown District",
-    createdAt: new Date(Date.now() - 3600000 * 2), // 2 hours ago
-    status: "Pending",
-    category: "Infrastructure",
-    upvotes: 24,
-    comments: 8,
-    user: { name: "John D.", email: "john@example.com" }
-  },
-  {
-    id: 2,
-    title: "Streetlights Out",
-    description: "Entire block of Maple Street has no lighting",
-    location: "Residential Zone",
-    createdAt: new Date(Date.now() - 3600000 * 5), // 5 hours ago
-    status: "In Progress",
-    category: "Public Safety",
-    upvotes: 42,
-    comments: 15,
-    user: { name: "Sarah M.", email: "sarah@example.com" }
-  },
-  {
-    id: 3,
-    title: "Park Maintenance",
-    description: "Broken playground equipment at Riverside Park",
-    location: "Riverside Area",
-    createdAt: new Date(Date.now() - 3600000 * 24), // 1 day ago
-    status: "Resolved",
-    category: "Public Spaces",
-    upvotes: 18,
-    comments: 5,
-    user: { name: "Mike T.", email: "mike@example.com" }
-  },
-];
+import axios from "axios";
 
 const statusIcons = {
-  "Pending": <FiClock className="text-yellow-400" />,
-  "In Progress": <FiAlertCircle className="text-blue-400" />,
-  "Resolved": <FiCheckCircle className="text-green-400" />,
+  PENDING: <FiClock className="text-yellow-400" />,
+  "IN PROGRESS": <FiAlertCircle className="text-blue-400" />,
+  RESOLVED: <FiCheckCircle className="text-green-400" />,
 };
 
 const statusColors = {
-  "Pending": "bg-yellow-500/10 text-yellow-400",
-  "In Progress": "bg-blue-500/10 text-blue-400",
-  "Resolved": "bg-green-500/10 text-green-400",
+  PENDING: "bg-yellow-500/10 text-yellow-400",
+  "IN PROGRESS": "bg-blue-500/10 text-blue-400",
+  RESOLVED: "bg-green-500/10 text-green-400",
 };
 
 const AdminDashboard = () => {
-  const [feedbacks, setFeedbacks] = useState(mockFeedbacks);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Newest");
@@ -77,27 +38,73 @@ const AdminDashboard = () => {
     total: 0,
     pending: 0,
     inProgress: 0,
-    resolved: 0
+    resolved: 0,
   });
 
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // In a real app, this would be an API call
-      setFeedbacks(prev => [...prev]);
-      updateStats();
-    }, 30000); // Update every 30 seconds
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (user) setUser(user);
+
+    const fetchFeedbacks = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/feedback/admin/",
+          {
+            headers: {
+              Authorization: `Bearer ${user?.access_token}`,
+            },
+          }
+        );
+
+        console.log(res.data);
+        setFeedbacks(res.data);
+        const newDate = formatDate(res.data.created_at);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeedbacks();
     updateStats();
-    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (user) setUser(user);
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/admin-dashboard/dashboard",
+          {
+            headers: {
+              Authorization: `Bearer ${user?.access_token}`,
+            },
+          }
+        );
+
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const updateStats = () => {
     setStats({
       total: feedbacks.length,
-      pending: feedbacks.filter(f => f.status === "Pending").length,
-      inProgress: feedbacks.filter(f => f.status === "In Progress").length,
-      resolved: feedbacks.filter(f => f.status === "Resolved").length
+      pending: feedbacks.filter((f) => f.status === "Pending").length,
+      inProgress: feedbacks.filter((f) => f.status === "In Progress").length,
+      resolved: feedbacks.filter((f) => f.status === "Resolved").length,
     });
   };
 
@@ -105,11 +112,14 @@ const AdminDashboard = () => {
   const sortOptions = ["Newest", "Oldest", "Most Urgent", "Most Popular"];
 
   const filteredFeedbacks = feedbacks
-    .filter(feedback => 
-      (activeFilter === "All" || feedback.status === activeFilter) &&
-      (feedback.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       feedback.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       feedback.location.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(
+      (feedback) =>
+        (activeFilter === "All" || feedback.status === activeFilter) &&
+        (feedback.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          feedback.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          feedback.location.toLowerCase().includes(searchQuery.toLowerCase()))
     )
     .sort((a, b) => {
       if (sortBy === "Newest") return b.createdAt - a.createdAt;
@@ -126,14 +136,15 @@ const AdminDashboard = () => {
 
   const formatDate = (date) => {
     const diffInHours = Math.floor((Date.now() - date) / 3600000);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    if (diffInHours < 24)
+      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
   };
 
   const updateStatus = (id, newStatus) => {
-    setFeedbacks(prev => 
-      prev.map(f => f.id === id ? { ...f, status: newStatus } : f)
+    setFeedbacks((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, status: newStatus } : f))
     );
     updateStats();
   };
@@ -143,40 +154,41 @@ const AdminDashboard = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-white">
       <AdminNavbar isAdmin={true} />
-      
-      <div className="flex flex-1 pt-16"> {/* Changed mt-16 to pt-16 */}
+
+      <div className="flex flex-1 pt-16">
+        {" "}
+        {/* Changed mt-16 to pt-16 */}
         <AdminSidebar activeTab={activeTab} setActivePage={setActiveTab} />
-        
-        <main className="flex-1 p-6 md:ml-64 overflow-auto"> {/* Added overflow-auto */}
+        <main className="flex-1 p-6 md:ml-64 overflow-auto">
+          {" "}
+          {/* Added overflow-auto */}
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <StatCard 
+            <StatCard
               icon={<FiMessageSquare className="text-blue-400" />}
               title="Total Feedback"
               value={stats.total}
               color="bg-blue-500/10"
             />
-            <StatCard 
+            <StatCard
               icon={<FiClock className="text-yellow-400" />}
               title="Pending"
               value={stats.pending}
               color="bg-yellow-500/10"
             />
-            <StatCard 
+            <StatCard
               icon={<FiAlertCircle className="text-blue-400" />}
               title="In Progress"
               value={stats.inProgress}
               color="bg-blue-500/10"
             />
-            <StatCard 
+            <StatCard
               icon={<FiCheckCircle className="text-green-400" />}
               title="Resolved"
               value={stats.resolved}
               color="bg-green-500/10"
             />
           </div>
-
-          {/* Search and Filter Section */}
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -197,14 +209,14 @@ const AdminDashboard = () => {
 
             <div className="flex gap-4">
               <div className="flex flex-wrap gap-2">
-                {filters.map(filter => (
+                {filters.map((filter) => (
                   <motion.button
                     key={filter}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className={`px-3 py-1 rounded-full text-xs transition-colors ${
-                      activeFilter === filter 
-                        ? "bg-blue-600 text-white" 
+                      activeFilter === filter
+                        ? "bg-blue-600 text-white"
                         : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveFilter(filter)}
@@ -232,12 +244,12 @@ const AdminDashboard = () => {
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-700 overflow-hidden"
                     >
-                      {sortOptions.map(option => (
+                      {sortOptions.map((option) => (
                         <button
                           key={option}
                           className={`block w-full text-left px-4 py-2 text-sm ${
-                            sortBy === option 
-                              ? "bg-blue-600 text-white" 
+                            sortBy === option
+                              ? "bg-blue-600 text-white"
                               : "text-gray-300 hover:bg-gray-700"
                           }`}
                           onClick={() => {
@@ -254,12 +266,11 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-
-          {/* Feedback List */}
+          {loading && <div className="tex-lg">Loading...</div>}
           <div className="space-y-4">
             <AnimatePresence>
-              {filteredFeedbacks.length > 0 ? (
-                filteredFeedbacks.map((feedback) => (
+              {feedbacks.length > 0 &&
+                feedbacks.map((feedback) => (
                   <motion.div
                     key={feedback.id}
                     layout
@@ -268,38 +279,20 @@ const AdminDashboard = () => {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <FeedbackCard 
+                    <FeedbackCard
                       feedback={{
                         ...feedback,
-                        createdAt: formatDate(feedback.createdAt)
                       }}
                       statusIcon={statusIcons[feedback.status]}
                       statusColor={statusColors[feedback.status]}
                       showActions={true}
                       adminView={true}
-                      onStatusChange={(newStatus) => updateStatus(feedback.id, newStatus)}
+                      onStatusChange={(newStatus) =>
+                        updateStatus(feedback.id, newStatus)
+                      }
                     />
                   </motion.div>
-                ))
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12 text-gray-400"
-                >
-                  <FiSearch className="mx-auto text-4xl mb-4" />
-                  <p>No feedback found matching your criteria</p>
-                  <button 
-                    className="mt-4 text-blue-400 hover:text-blue-300 text-sm"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setActiveFilter("All");
-                    }}
-                  >
-                    Clear filters
-                  </button>
-                </motion.div>
-              )}
+                ))}
             </AnimatePresence>
           </div>
         </main>
@@ -308,7 +301,7 @@ const AdminDashboard = () => {
   );
 };
 
-// StatCard component
+
 const StatCard = ({ icon, title, value, color }) => (
   <motion.div
     whileHover={{ y: -5 }}

@@ -23,10 +23,14 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
       <div className="p-5">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-white">{feedback.title}</h3>
+            <h3 className="text-lg font-semibold text-white">
+              {feedback.title}
+            </h3>
             <p className="text-gray-400 mt-1">{feedback.description}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs flex items-center ${statusColor}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-xs flex items-center ${statusColor}`}
+          >
             {statusIcon}
             <span className="ml-1">{feedback.status}</span>
           </span>
@@ -38,7 +42,9 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
             {feedback.location}
           </span>
           <span className="text-gray-500">•</span>
-          <span className="text-gray-400">{feedback.createdAt}</span>
+          <span className="text-gray-400">
+            {new Date(feedback.created_at).toDateString()}
+          </span>
           <span className="text-gray-500">•</span>
           <span className="flex items-center text-gray-400">
             <FiThumbsUp className="mr-1" />
@@ -54,7 +60,8 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
               <span className="text-gray-500">•</span>
               <span className="flex items-center text-gray-400">
                 <FiPaperclip className="mr-1" />
-                {feedback.attachments} attachment{feedback.attachments !== 1 ? 's' : ''}
+                {feedback.attachments} attachment
+                {feedback.attachments !== 1 ? "s" : ""}
               </span>
             </>
           )}
@@ -64,20 +71,10 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
           <div className="mt-4 pt-4 border-t border-gray-700">
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-400">
-                Submitted by: <span className="text-blue-400">{feedback.user?.name}</span> ({feedback.user?.email})
+                Submitted by:{" "}
+                <span className="text-blue-400">{feedback.user?.name}</span> (
+                {feedback.user?.email})
               </div>
-              
-              <select
-                value={feedback.status}
-                onChange={handleStatusChange}
-                className="bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-3 py-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                {statusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         )}

@@ -7,6 +7,7 @@ import CivilianDashboard from "./pages/Civilian";
 import CivilianAuthProvider from "./components/CivilianAuthProvider";
 import FeedbackModal from "./components/FeedbackModel";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAuthProvider from "./components/AdminAuthProvider";
 
 export default function App() {
   return (
@@ -34,7 +35,9 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <AdminDashboard/>
+            <AdminAuthProvider>
+              <AdminDashboard />
+            </AdminAuthProvider>
           }
         />
       </Routes>
