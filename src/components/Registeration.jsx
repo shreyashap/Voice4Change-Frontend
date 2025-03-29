@@ -14,7 +14,7 @@ const registrationSchema = z
     email: z.string().email("Invalid email address"),
     phone: z.string().regex(/^\d{10}$/, "Phone must be 10 digits"),
     address: z.string().min(5, "Address is required"),
-    role: z.enum(["CIVILIAN", "Authority"], "Select a valid role"),
+    role: z.enum(["CIVILIAN", "ADMIN"], "Select a valid role"),
     idProofType: z.string().min(3, "ID Proof Type is required"),
     idProofFile: z.any().refine((file) => file.length > 0, "File is required"),
 
@@ -160,7 +160,7 @@ const Registration = () => {
             >
               <option value="">Select Role</option>
               <option value="CIVILIAN">Civilian</option>
-              <option value="Authority">Village Authority Admin</option>
+              <option value="ADMIN">Village Authority Admin</option>
             </select>
             {errors.role && (
               <p className="text-red-500">{errors.role.message}</p>
@@ -196,7 +196,7 @@ const Registration = () => {
             )}
           </div>
 
-          {role === "Authority" && (
+          {role === "ADMIN" && (
             <>
               <div>
                 <input

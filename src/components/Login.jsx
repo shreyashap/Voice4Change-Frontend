@@ -34,15 +34,19 @@ const Login = () => {
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/auth/login/",
-        d,
-        {
-          withCredentials: true,
-        }
+        d
       );
       console.log("Login successful:", response.data);
+
       localStorage.setItem("userData", JSON.stringify(response?.data));
       reset();
-      navigate("/civilian");
+
+      if (response.data.user.user_type === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/civilian");
+      }
+      
     } catch (err) {
       setError(
         err.response?.data?.message ||
