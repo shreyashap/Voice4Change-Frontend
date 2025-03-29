@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { 
-  FiAlertCircle, 
-  FiCheckCircle, 
-  FiClock, 
-  FiSearch, 
+import {
+  FiAlertCircle,
+  FiCheckCircle,
+  FiClock,
+  FiSearch,
   FiFilter,
-  FiMessageSquare
+  FiMessageSquare,
+  FiChevronDown,
+  FiLogOut,
 } from "react-icons/fi";
+import { FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import FeedbackCard from "../components/AdminFeedbackCard";
 import AdminSidebar from "../components/AdminSidebar";
-import AdminNavbar from "../components/Navbar";
 import axios from "axios";
+import logo from "../assets/logo.png";
+import { useNavigate } from "react-router-dom";
 
 const statusIcons = {
   PENDING: <FiClock className="text-yellow-400" />,
@@ -29,17 +33,13 @@ const AdminDashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("Newest");
-  const [showSortOptions, setShowSortOptions] = useState(false);
-  const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    inProgress: 0,
-    resolved: 0,
-  });
+  const [stats, setStats] = useState();
 
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userData"));
@@ -49,17 +49,14 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/feedback/admin/",
+          `http://127.0.0.1:8000/api/feedback/admin/`,
           {
             headers: {
               Authorization: `Bearer ${user?.access_token}`,
             },
           }
         );
-
-        console.log(res.data);
         setFeedbacks(res.data);
-        const newDate = formatDate(res.data.created_at);
       } catch (error) {
         console.error(error);
       } finally {
@@ -67,8 +64,7 @@ const AdminDashboard = () => {
       }
     };
     fetchFeedbacks();
-    updateStats();
-  }, []);
+  }, [searchQuery]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userData"));
@@ -87,6 +83,7 @@ const AdminDashboard = () => {
         );
 
         console.log(res.data);
+        setStats(res.data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -96,64 +93,112 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  const updateStats = () => {
-    setStats({
-      total: feedbacks.length,
-      pending: feedbacks.filter((f) => f.status === "Pending").length,
-      inProgress: feedbacks.filter((f) => f.status === "In Progress").length,
-      resolved: feedbacks.filter((f) => f.status === "Resolved").length,
-    });
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/auth/logout/",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${user?.access_token}`,
+          },
+        }
+      );
+
+      if (res.data) {
+        localStorage.removeItem("userData");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const filters = ["All", "Pending", "In Progress", "Resolved"];
-  const sortOptions = ["Newest", "Oldest", "Most Urgent", "Most Popular"];
-
-  const filteredFeedbacks = feedbacks
-    .filter(
-      (feedback) =>
-        (activeFilter === "All" || feedback.status === activeFilter) &&
-        (feedback.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          feedback.description
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          feedback.location.toLowerCase().includes(searchQuery.toLowerCase()))
-    )
-    .sort((a, b) => {
-      if (sortBy === "Newest") return b.createdAt - a.createdAt;
-      if (sortBy === "Oldest") return a.createdAt - b.createdAt;
-      if (sortBy === "Most Urgent") {
-        // Custom urgency logic (e.g., pending first, then by upvotes)
-        if (a.status === "Pending" && b.status !== "Pending") return -1;
-        if (b.status === "Pending" && a.status !== "Pending") return 1;
-        return b.upvotes - a.upvotes;
-      }
-      if (sortBy === "Most Popular") return b.upvotes - a.upvotes;
-      return 0;
-    });
-
-  const formatDate = (date) => {
-    const diffInHours = Math.floor((Date.now() - date) / 3600000);
-    if (diffInHours < 24)
-      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
-  };
-
-  const updateStatus = (id, newStatus) => {
-    setFeedbacks((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, status: newStatus } : f))
-    );
-    updateStats();
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-950 text-white">
-      <AdminNavbar isAdmin={true} />
+      <nav className="flex justify-between items-center p-4 bg-gray-900/80 backdrop-blur-md shadow-md w-full h-16 z-50">
+        <motion.div
+          className="flex items-center"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <img
+            src={logo}
+            alt="Voice4Change Logo"
+            className="h-10 w-auto mr-3"
+          />
+        </motion.div>
+
+        <div className="relative">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={() => setShowDropdown(!showDropdown)}
+          >
+            <div className="flex items-center space-x-3">
+              {user?.user.profilePic ? (
+                <img
+                  src={user?.user.profilePic}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-blue-400"
+                />
+              ) : (
+                <FaUserCircle className="text-blue-400 text-3xl" />
+              )}
+              <div className="text-right">
+                <p className="font-medium text-sm">
+                  {user?.user.first_name} {user?.user.last_name}
+                </p>
+                <p className="text-gray-300 text-xs">{user?.user.email}</p>
+              </div>
+              <FiChevronDown
+                className={`transition-transform ${
+                  showDropdown ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+          </motion.div>
+
+          {/* Dropdown Menu */}
+          {showDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg z-50 border border-gray-700"
+            >
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    // Add navigation to profile page here
+                    setShowDropdown(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                >
+                  View Profile
+                </button>
+                <div className="border-t border-gray-700"></div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
+                >
+                  <FiLogOut className="mr-2" />
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </nav>
 
       <div className="flex flex-1 pt-16">
         {" "}
         {/* Changed mt-16 to pt-16 */}
-        <AdminSidebar activeTab={activeTab} setActivePage={setActiveTab} />
+        <AdminSidebar />
         <main className="flex-1 p-6 md:ml-64 overflow-auto">
           {" "}
           {/* Added overflow-auto */}
@@ -162,25 +207,25 @@ const AdminDashboard = () => {
             <StatCard
               icon={<FiMessageSquare className="text-blue-400" />}
               title="Total Feedback"
-              value={stats.total}
+              value={stats?.total_feedback}
               color="bg-blue-500/10"
             />
             <StatCard
               icon={<FiClock className="text-yellow-400" />}
               title="Pending"
-              value={stats.pending}
+              value={stats?.pending_feedback}
               color="bg-yellow-500/10"
             />
             <StatCard
               icon={<FiAlertCircle className="text-blue-400" />}
               title="In Progress"
-              value={stats.inProgress}
+              value={stats?.in_progress_feedback}
               color="bg-blue-500/10"
             />
             <StatCard
               icon={<FiCheckCircle className="text-green-400" />}
               title="Resolved"
-              value={stats.resolved}
+              value={stats?.resolved_feedback}
               color="bg-green-500/10"
             />
           </div>
@@ -219,45 +264,6 @@ const AdminDashboard = () => {
                     {filter}
                   </motion.button>
                 ))}
-              </div>
-
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700"
-                  onClick={() => setShowSortOptions(!showSortOptions)}
-                >
-                  <FiFilter />
-                  <span>Sort: {sortBy}</span>
-                </motion.button>
-                <AnimatePresence>
-                  {showSortOptions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-700 overflow-hidden"
-                    >
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option}
-                          className={`block w-full text-left px-4 py-2 text-sm ${
-                            sortBy === option
-                              ? "bg-blue-600 text-white"
-                              : "text-gray-300 hover:bg-gray-700"
-                          }`}
-                          onClick={() => {
-                            setSortBy(option);
-                            setShowSortOptions(false);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </div>
           </div>

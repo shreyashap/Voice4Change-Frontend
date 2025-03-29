@@ -20,10 +20,9 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
   const [expandedSection, setExpandedSection] = useState(null);
   const location = useLocation();
 
-  // Auto-expand feedback section when on feedback pages
   useEffect(() => {
-    if (location.pathname.startsWith('/admin/feedback')) {
-      setExpandedSection('Feedback Management');
+    if (location.pathname.startsWith("/admin/feedback")) {
+      setExpandedSection("Feedback Management");
     }
   }, [location]);
 
@@ -32,51 +31,20 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
       title: "Dashboard",
       icon: <FiHome size={20} />,
       path: "/admin",
-      tab: "dashboard"
-    },
-    {
-      title: "Export Feedbacks",
-      icon: <FiMessageSquare size={20} />,
-      tab: "feedback",
-      subItems: [
-        { 
-          title: "All Feedback", 
-          path: "/admin/feedback/all", 
-          tab: "all-feedback",
-          icon: <FiMessageSquare size={16} />
-        },
-        { 
-          title: "Pending Review", 
-          path: "/admin/feedback/pending", 
-          tab: "pending-feedback",
-          icon: <FiClock size={16} />
-        },
-        { 
-          title: "Resolved Issues", 
-          path: "/admin/feedback/resolved", 
-          tab: "resolved-feedback",
-          icon: <FiCheck size={16} />
-        }
-      ]
+      tab: "dashboard",
     },
     {
       title: "Feedback Management",
       icon: <FiBarChart2 size={20} />,
       path: "/admin/feedback-management",
-      tab: "feedback-management"
+      tab: "feedback-management",
     },
     {
       title: "AI Insights",
       icon: <FiBarChart2 size={20} />,
       path: "/admin/aiinsights",
-      tab: "aiinsights"
+      tab: "aiinsights",
     },
-    {
-      title: "Settings",
-      icon: <FiSettings size={20} />,
-      path: "/admin/settings",
-      tab: "settings"
-    }
   ];
 
   const toggleSection = (title) => {
@@ -103,7 +71,9 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mt-16">
               Admin Panel
             </h2>
-            <p className="text-xs text-gray-400 mt-1">Feedback Management System</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Feedback Management System
+            </p>
           </div>
 
           {/* Navigation Menu */}
@@ -117,24 +87,29 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => toggleSection(item.title)}
                       className={`w-full flex items-center justify-between py-3 px-4 rounded-xl transition-all ${
-                        activeTab === item.tab || 
-                        item.subItems.some(sub => activeTab === sub.tab)
+                        activeTab === item.tab ||
+                        item.subItems.some((sub) => activeTab === sub.tab)
                           ? "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
                           : "hover:bg-gray-700/50"
                       }`}
                     >
                       <div className="flex items-center space-x-4">
-                        <span className={`transition-colors ${
-                          activeTab === item.tab || item.subItems.some(sub => activeTab === sub.tab)
-                            ? "text-white" 
-                            : "text-blue-400"
-                        }`}>
+                        <span
+                          className={`transition-colors ${
+                            activeTab === item.tab ||
+                            item.subItems.some((sub) => activeTab === sub.tab)
+                              ? "text-white"
+                              : "text-blue-400"
+                          }`}
+                        >
                           {item.icon}
                         </span>
                         <span className="font-medium">{item.title}</span>
                       </div>
                       <motion.div
-                        animate={{ rotate: expandedSection === item.title ? 0 : -90 }}
+                        animate={{
+                          rotate: expandedSection === item.title ? 0 : -90,
+                        }}
                         transition={{ duration: 0.2 }}
                       >
                         <FiChevronRight className="text-blue-300" />
@@ -145,21 +120,21 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                       {expandedSection === item.title && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
-                          animate={{ 
-                            opacity: 1, 
+                          animate={{
+                            opacity: 1,
                             height: "auto",
-                            transition: { 
+                            transition: {
                               opacity: { duration: 0.2 },
-                              height: { duration: 0.3 }
-                            }
+                              height: { duration: 0.3 },
+                            },
                           }}
-                          exit={{ 
-                            opacity: 0, 
+                          exit={{
+                            opacity: 0,
                             height: 0,
-                            transition: { 
+                            transition: {
                               opacity: { duration: 0.1 },
-                              height: { duration: 0.2 }
-                            }
+                              height: { duration: 0.2 },
+                            },
                           }}
                           className="pl-14 space-y-1 mt-1 overflow-hidden"
                         >
@@ -168,7 +143,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                               key={subItem.title}
                               to={subItem.path}
                               onClick={() => setActivePage(subItem.tab)}
-                              className={({ isActive }) => 
+                              className={({ isActive }) =>
                                 `flex items-center py-2.5 px-4 rounded-lg text-sm transition-all ${
                                   isActive
                                     ? "bg-blue-700/30 text-blue-300 font-medium"
@@ -190,7 +165,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                   <NavLink
                     to={item.path}
                     onClick={() => setActivePage(item.tab)}
-                    className={({ isActive }) => 
+                    className={({ isActive }) =>
                       `flex items-center py-3 px-4 rounded-xl transition-all ${
                         isActive
                           ? "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
@@ -198,17 +173,23 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                       }`
                     }
                   >
-                    <span className={`mr-4 ${
-                      activeTab === item.tab ? "text-white" : "text-blue-400"
-                    }`}>
+                    <span
+                      className={`mr-4 ${
+                        activeTab === item.tab ? "text-white" : "text-blue-400"
+                      }`}
+                    >
                       {item.icon}
                     </span>
                     <span className="font-medium">{item.title}</span>
                     {activeTab === item.tab && (
-                      <motion.span 
+                      <motion.span
                         layoutId="activeIndicator"
                         className="w-1.5 h-1.5 bg-white rounded-full ml-auto"
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
                       />
                     )}
                   </NavLink>
@@ -219,7 +200,6 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
         </div>
       </aside>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -236,9 +216,11 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                       Admin Panel
                     </h2>
-                    <p className="text-xs text-gray-400">Feedback Management System</p>
+                    <p className="text-xs text-gray-400">
+                      Feedback Management System
+                    </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsOpen(false)}
                     className="text-gray-400 hover:text-white"
                   >
@@ -254,24 +236,32 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                           <button
                             onClick={() => toggleSection(item.title)}
                             className={`w-full flex items-center justify-between py-3 px-4 rounded-xl transition-all ${
-                              activeTab === item.tab || 
-                              item.subItems.some(sub => activeTab === sub.tab)
+                              activeTab === item.tab ||
+                              item.subItems.some((sub) => activeTab === sub.tab)
                                 ? "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
                                 : "hover:bg-gray-700/50"
                             }`}
                           >
                             <div className="flex items-center space-x-4">
-                              <span className={`transition-colors ${
-                                activeTab === item.tab || item.subItems.some(sub => activeTab === sub.tab)
-                                  ? "text-white" 
-                                  : "text-blue-400"
-                              }`}>
+                              <span
+                                className={`transition-colors ${
+                                  activeTab === item.tab ||
+                                  item.subItems.some(
+                                    (sub) => activeTab === sub.tab
+                                  )
+                                    ? "text-white"
+                                    : "text-blue-400"
+                                }`}
+                              >
                                 {item.icon}
                               </span>
                               <span className="font-medium">{item.title}</span>
                             </div>
                             <motion.div
-                              animate={{ rotate: expandedSection === item.title ? 0 : -90 }}
+                              animate={{
+                                rotate:
+                                  expandedSection === item.title ? 0 : -90,
+                              }}
                               transition={{ duration: 0.2 }}
                             >
                               <FiChevronRight className="text-blue-300" />
@@ -288,7 +278,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                                     setActivePage(subItem.tab);
                                     setIsOpen(false);
                                   }}
-                                  className={({ isActive }) => 
+                                  className={({ isActive }) =>
                                     `flex items-center py-2.5 px-4 rounded-lg text-sm transition-all ${
                                       isActive
                                         ? "bg-blue-700/30 text-blue-300 font-medium"
@@ -312,7 +302,7 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                             setActivePage(item.tab);
                             setIsOpen(false);
                           }}
-                          className={({ isActive }) => 
+                          className={({ isActive }) =>
                             `flex items-center py-3 px-4 rounded-xl transition-all ${
                               isActive
                                 ? "bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
@@ -320,17 +310,25 @@ const AdminSidebar = ({ activeTab, setActivePage }) => {
                             }`
                           }
                         >
-                          <span className={`mr-4 ${
-                            activeTab === item.tab ? "text-white" : "text-blue-400"
-                          }`}>
+                          <span
+                            className={`mr-4 ${
+                              activeTab === item.tab
+                                ? "text-white"
+                                : "text-blue-400"
+                            }`}
+                          >
                             {item.icon}
                           </span>
                           <span className="font-medium">{item.title}</span>
                           {activeTab === item.tab && (
-                            <motion.span 
+                            <motion.span
                               layoutId="mobileActiveIndicator"
                               className="w-1.5 h-1.5 bg-white rounded-full ml-auto"
-                              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 30,
+                              }}
                             />
                           )}
                         </NavLink>

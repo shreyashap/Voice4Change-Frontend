@@ -15,6 +15,9 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
     }
   };
 
+
+  
+
   return (
     <motion.div
       whileHover={{ scale: 1.005 }}
@@ -72,8 +75,12 @@ const AdminFeedbackCard = ({ feedback, statusIcon, statusColor, adminView = fals
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-400">
                 Submitted by:{" "}
-                <span className="text-blue-400">{feedback.user?.name}</span> (
-                {feedback.user?.email})
+                <span className="text-blue-400">
+                  {feedback.user?.first_name}
+                </span>{" "}
+                <span className="text-blue-400">
+                  {feedback.user?.last_name}
+                </span>
               </div>
             </div>
           </div>

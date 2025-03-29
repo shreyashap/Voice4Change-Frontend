@@ -8,6 +8,8 @@ import CivilianAuthProvider from "./components/CivilianAuthProvider";
 import FeedbackModal from "./components/FeedbackModel";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAuthProvider from "./components/AdminAuthProvider";
+import FeedbackManagement from "./pages/FeedbackManagement";
+import AiInsights from "./pages/AiInsights";
 
 export default function App() {
   return (
@@ -37,6 +39,22 @@ export default function App() {
           element={
             <AdminAuthProvider>
               <AdminDashboard />
+            </AdminAuthProvider>
+          }
+        />
+        <Route
+          path="/admin/feedback-management"
+          element={
+            <AdminAuthProvider>
+              <FeedbackManagement />
+            </AdminAuthProvider>
+          }
+        />
+        <Route
+          path="/admin/aiinsights"
+          element={
+            <AdminAuthProvider>
+              <AiInsights />
             </AdminAuthProvider>
           }
         />
