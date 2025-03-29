@@ -60,23 +60,6 @@ const FeedbackManagement = () => {
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
 
-  const [newStatus, setNewStatus] = useState();
-
-  const toggleEdit = (id) => {
-    setFeedbacks(
-      feedbacks.map((f) =>
-        f.id === id ? { ...f, isEditing: !f.isEditing } : f
-      )
-    );
-  };
-
-  const handleFieldChange = async (id, field, value) => {};
-
-  const changeStatus = (id, newStatus) => {
-    setFeedbacks(
-      feedbacks.map((f) => (f.id === id ? { ...f, status: newStatus } : f))
-    );
-  };
 
   const exportToCSV = () => {
     if (feedbacks.length === 0) {
@@ -121,9 +104,7 @@ const FeedbackManagement = () => {
     document.body.removeChild(a);
   };
 
-  const handleStatusUpdate = async () => {
-    console.log(newStatus);
-  };
+  
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userData"));
@@ -178,6 +159,23 @@ const FeedbackManagement = () => {
     };
     fetchData();
   }, []);
+
+  const handleStatusUpdate = async (newStatus, id) => {
+    try {
+      const res = await axios.put(
+        `http://127.0.0.1:8000/api/feedback/update/${id}/`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.access_token}`,
+          },
+        }
+      );
+      setFeedbacks(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-950 text-gray-100">
@@ -296,9 +294,6 @@ const FeedbackManagement = () => {
                   Status
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Response
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -361,13 +356,7 @@ const FeedbackManagement = () => {
                     </td>
                     <td className="px-6 py-4">
                       {feedback.isEditing ? (
-                        <select
-                          className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={feedback.status}
-                          onChange={(e) => {
-                            setNewStatus(e.target.value);
-                          }}
-                        >
+                        <select className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                           <option value="UNDER REVIEW">Under Review</option>
                           <option value="IN PROGRESS">In Progress</option>
                           <option value="RESOLVED">Resolved</option>
@@ -385,118 +374,17 @@ const FeedbackManagement = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 max-w-xs">
-                      {feedback.isEditing ? (
-                        <textarea
-                          className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={feedback.response}
-                          onChange={(e) =>
-                            handleFieldChange(
-                              feedback.id,
-                              "response",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Enter official response..."
-                          rows={3}
-                        />
-                      ) : (
-                        <div className="text-sm text-gray-300">
-                          {feedback.response || (
-                            <span className="text-gray-500 italic">
-                              No response yet
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        {feedback.isEditing ? (
-                          <>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => {
-                                toggleEdit(feedback.id);
-                                handleStatusUpdate;
-                              }}
-                              className="text-green-500 hover:text-green-400 p-1.5 rounded-lg hover:bg-green-500/10"
-                              title="Save"
-                            >
-                              <FiSave />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => toggleEdit(feedback.id)}
-                              className="text-gray-400 hover:text-gray-300 p-1.5 rounded-lg hover:bg-gray-700"
-                              title="Cancel"
-                            >
-                              <FiX />
-                            </motion.button>
-                          </>
-                        ) : (
-                          <>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => toggleEdit(feedback.id)}
-                              className="text-blue-400 hover:text-blue-300 p-1.5 rounded-lg hover:bg-blue-500/10"
-                              title="Edit"
-                            >
-                              <FiEdit2 />
-                            </motion.button>
-                            {/* <div className="flex items-center space-x-1">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() =>
-                                  changeStatus(feedback.id, "Pending")
-                                }
-                                className={`p-1.5 rounded-lg ${
-                                  feedback.status === "Pending"
-                                    ? "bg-yellow-500/20 text-yellow-400"
-                                    : "hover:bg-gray-700 text-gray-400"
-                                }`}
-                                title="Set to Pending"
-                              >
-                                <FiClock size={14} />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() =>
-                                  changeStatus(feedback.id, "In Progress")
-                                }
-                                className={`p-1.5 rounded-lg ${
-                                  feedback.status === "In Progress"
-                                    ? "bg-blue-500/20 text-blue-400"
-                                    : "hover:bg-gray-700 text-gray-400"
-                                }`}
-                                title="Set to In Progress"
-                              >
-                                <FiAlertCircle size={14} />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() =>
-                                  changeStatus(feedback.id, "Resolved")
-                                }
-                                className={`p-1.5 rounded-lg ${
-                                  feedback.status === "Resolved"
-                                    ? "bg-green-500/20 text-green-400"
-                                    : "hover:bg-gray-700 text-gray-400"
-                                }`}
-                                title="Set to Resolved"
-                              >
-                                <FiCheckCircle size={14} />
-                              </motion.button>
-                            </div> */}
-                          </>
-                        )}
-                      </div>
+                    <td className="px-6 py-4">
+                      <select
+                        className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onChange={(e) => {
+                          handleStatusUpdate(e.target.value, feedback.id);
+                        }}
+                      >
+                        <option value="UNDER REVIEW">Under Review</option>
+                        <option value="IN PROGRESS">In Progress</option>
+                        <option value="RESOLVED">Resolved</option>
+                      </select>
                     </td>
                   </tr>
                 ))

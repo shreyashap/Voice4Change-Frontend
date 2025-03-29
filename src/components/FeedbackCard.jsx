@@ -125,12 +125,21 @@ transition-transform duration-300 hover:shadow-blue-500/30"
         )}
       </div>
 
-      <button
-        onClick={handleComment}
-        className="mt-2 w-full bg-blue-600 py-2 rounded-md text-white hover:bg-blue-700 transition"
-      >
-        View More
-      </button>
+      {section === "home" && (
+        <button className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition">
+          <FaComment />
+          <span>{comments.length}</span>
+        </button>
+      )}
+
+      {section === "home" && (
+        <button
+          onClick={handleComment}
+          className="mt-2 w-full bg-blue-600 py-2 rounded-md text-white hover:bg-blue-700 transition"
+        >
+          View More
+        </button>
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CivilianDashboard = () => {
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("myfeedbacks");
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
